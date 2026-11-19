@@ -10,6 +10,18 @@ Role o dado e chegue primeiro ao castelo. Cada herói tem um superpoder que carr
 
 ## Código
 
-O jogo inteiro está em `index.html`. Os fontes ficam em `src/` (CSS, HTML, JS dos heróis e tabuleiro, lógica e mini-games). Para remontar, rode `python3 src/assemble.py` e ele regrava `index.html`.
+O jogo inteiro está em `index.html`, e funciona sem internet depois da primeira visita (service worker e ícone de tela inicial). Os fontes ficam em `src/` (CSS, HTML, JS dos heróis e tabuleiro, lógica e mini-games). Para remontar, rode `python3 src/assemble.py` e ele regrava `index.html`.
 
 Todos os personagens são originais.
+
+## Testes
+
+Rodam sozinhos a cada push (`.github/workflows/teste.yml`). Para rodar na sua máquina, na pasta do projeto:
+
+- `node tests/conteudo.js`: confere os dados dos mini-games (rimas que não se cruzam, letra que falta sem alternativa que forme outra palavra, opostos, sílabas, corpo, filhotes).
+- `node tests/pwa.js`: confere manifesto, ícones e arquivos do modo offline.
+- `node tests/regras.js`: regras do jogo e vazamentos (vitória por duelo, duração dos escudos, gelo, música, mini-game abandonado). Usa o gancho `?teste` da URL, que só existe para os testes.
+- `node tests/minigames.js`: um jogador-robô resolve os 27 mini-games certo e errado, nos 2 níveis.
+- `node tests/partidas.js`: partidas completas de robôs e de pessoas.
+
+Os três últimos precisam de `npm i playwright` e `npx playwright install chromium`.

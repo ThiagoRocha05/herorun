@@ -19,6 +19,9 @@ out = f"""<!doctype html>
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Corrida dos Heróis">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icon-180.png">
 <style>html{{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}}body{{margin:0}}</style>
 {p1}
 </head>
@@ -29,6 +32,7 @@ out = f"""<!doctype html>
 {p4}
 {p5}
 }})();</script>
+<script>if('serviceWorker' in navigator&&location.protocol!=='file:')addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{{}}));</script>
 </body>
 </html>"""
 

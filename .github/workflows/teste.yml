@@ -19,8 +19,14 @@ jobs:
           cp index.html /tmp/antes.html
           python3 src/assemble.py
           cmp index.html /tmp/antes.html
-      - name: Partidas completas no navegador
+      - name: Conteudo dos mini games e modo offline
+        run: |
+          node tests/conteudo.js
+          node tests/pwa.js
+      - name: Navegador
         run: |
           npm i playwright@1.49.0
           npx playwright install --with-deps chromium
+          node tests/regras.js
+          node tests/minigames.js
           node tests/partidas.js
