@@ -63,18 +63,20 @@ async function push(q,n){
 }
 async function freeze(q){
  if(q.shield>0){say(`${q.name} está com escudo e não congelou!`);pop(q,'Escudo!');sfx.good();await sleep(1000);return;}
- q.skip++;pop(q,'Gelo!');sfx.freeze();say(`${q.name} foi congelado e perde a próxima vez!`);await sleep(1100);
+ if(q.skip>0){say(`${q.name} já está congelado.`);pop(q,'Já gelado');await sleep(900);return;}
+ q.skip=1;pop(q,'Gelo!');sfx.freeze();say(`${q.name} foi congelado e perde a próxima vez!`);await sleep(1100);
 }
 async function swap(p,q){
  const a=p.pos,b=q.pos;
  if(q.shield>0&&b>a){say(`${q.name} está com escudo, nada acontece.`);pop(q,'Escudo!');await sleep(1000);return;}
  say(`${p.name} e ${q.name} trocaram de lugar!`);sfx.swap();p.pos=b;q.pos=a;place();hop(p);hop(q);await sleep(1000);
 }
+let ROBOT_WIN=()=>Math.random()<.68;
 async function playGame(p,g,title){
  const lv=p.pos>N/2?2:1;
  if(p.human)return modal(`<h3>${esc(title)}: ${esc(g.name)}</h3><p class="sub">${esc(p.name)}, ${esc(g.hint)}</p><div id="mg"></div>`,(c,close)=>g.run($('#mg',c),close,lv));
  say(`${p.name} está resolvendo o desafio...`);await sleep(1100);
- return{win:Math.random()<.68,extra:0};
+ return{win:ROBOT_WIN(),extra:0};
 }
 async function puzzle(p,b){
  const r=await playGame(p,nextGame(),'Desafio');
@@ -109,7 +111,7 @@ const WHEEL=[
  {d:'Volta 2 casas.',t:'Volta 2',c:'#ff4d5e',f:p=>push(p,2)},
  {d:'Joga o dado de novo!',t:'Dado ouro',c:'#ffd23f',f:async p=>{p.extra=true;}},
  {d:'Avança 6 casas!',t:'+6',c:'#ff9f1c',f:p=>walk(p,6)},
- {d:'Fica protegido por 3 jogadas.',t:'Escudo',c:'#4ca3ff',f:async p=>{p.shield=3;}},
+ {d:'Fica protegido por 3 jogadas.',t:'Escudo',c:'#4ca3ff',f:async p=>{p.shield=4;}},
  {d:'Avança 3 casas.',t:'+3',c:'#b79bff',f:p=>walk(p,3)},
  {d:'O superpoder está pronto!',t:'Recarga',c:'#ff6fb5',f:async p=>{p.charge=p.hero.cd;}}
 ];
@@ -194,7 +196,8 @@ async function doRoll(p){
  if(arm==='dash')r+=3;
  say(`${p.name} tirou ${r}${arm==='dash'?' (com turbo)':''}.`);pop(p,'+'+r);await sleep(500);await walk(p,r);
 }
-function winCheck(p){if(p.pos>=N&&!S.over){S.over=true;win(p);return true;}return false;}
+/* quem chegou ao castelo vence na hora, mesmo que não seja o jogador da vez (ex.: rival que ganha o duelo) */
+function winCheck(p){if(S.over)return false;const w=p&&p.pos>=N?p:S.players.find(q=>q.pos>=N);if(!w)return false;S.over=true;win(w);return true;}
 function win(p){
  sfx.win();confetti();say(`${p.name} venceu a corrida!`);
  const rank=[...S.players].sort((a,b)=>(b===p)-(a===p)||b.pos-a.pos);

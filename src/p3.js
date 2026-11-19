@@ -10,7 +10,11 @@ const say=t=>{HIST.push(t);if(HIST.length>3)HIST.shift();$('#log').innerHTML=HIS
 
 /* som: sintetizador próprio (efeitos por casa + música de fundo) */
 let AC=null,SND=true,MUS=true,MG=null,MG2=null;
-function ac(){if(!AC){AC=new(window.AudioContext||window.webkitAudioContext)();MG=AC.createGain();MG.gain.value=.9;MG.connect(AC.destination);MG2=AC.createGain();MG2.gain.value=.5;MG2.connect(MG);}if(AC.state==='suspended')AC.resume();return AC;}
+function ac(){if(!AC){AC=new(window.AudioContext||window.webkitAudioContext)();MG=AC.createGain();MG.gain.value=.9;MG.connect(AC.destination);MG2=AC.createGain();MG2.gain.value=.5;MG2.connect(MG);}if(AC.state==='suspended'&&!document.hidden)AC.resume();return AC;}
+/* aba em segundo plano: silencia e para de gastar bateria; ao voltar, retoma */
+document.addEventListener('visibilitychange',()=>{if(!AC)return;try{if(document.hidden)AC.suspend();else if(SND)AC.resume();}catch(e){}});
+/* o mini game ainda está na tela? (falso se a partida foi abandonada pelo menu) */
+const alive=el=>!!el&&el.isConnected&&!$('#modal').hidden;
 function tone(f,d=.15,t='square',v=.05,at=0,to=null){if(!SND)return;try{const a=ac(),T=a.currentTime+at,o=a.createOscillator(),g=a.createGain();o.type=t;o.frequency.setValueAtTime(f,T);if(to)o.frequency.exponentialRampToValueAtTime(to,T+d);g.gain.setValueAtTime(.0001,T);g.gain.exponentialRampToValueAtTime(v,T+Math.min(.02,d/3));g.gain.exponentialRampToValueAtTime(.0001,T+d);o.connect(g);g.connect(MG);o.start(T);o.stop(T+d+.03);}catch(e){}}
 function noise(d=.2,v=.05,f=1200,at=0,to=null,q=1){if(!SND)return;try{const a=ac(),T=a.currentTime+at,n=Math.max(1,Math.floor(a.sampleRate*d)),b=a.createBuffer(1,n,a.sampleRate),x=b.getChannelData(0);for(let i=0;i<n;i++)x[i]=Math.random()*2-1;const s=a.createBufferSource();s.buffer=b;const fl=a.createBiquadFilter();fl.type='bandpass';fl.Q.value=q;fl.frequency.setValueAtTime(f,T);if(to)fl.frequency.exponentialRampToValueAtTime(to,T+d);const g=a.createGain();g.gain.setValueAtTime(v,T);g.gain.exponentialRampToValueAtTime(.0001,T+d);s.connect(fl);fl.connect(g);g.connect(MG);s.start(T);}catch(e){}}
 const beep=(f=440,d=.12,t='square',v=.05)=>tone(f,d,t,v);
@@ -50,7 +54,7 @@ const music={tm:null,next:0,step:0,
   this.mt(m(root+ch[[0,1,2,1,2,1,0,1][i]]+12),.16,'square',.025,T);
   if(i===0||i===4)this.mt(m(root+ch[2]+24),.3,'sine',.04,T);
   if(i%2===1){try{const a=AC,n=Math.floor(a.sampleRate*.03),b=a.createBuffer(1,n,a.sampleRate),x=b.getChannelData(0);for(let k=0;k<n;k++)x[k]=Math.random()*2-1;const sr=a.createBufferSource();sr.buffer=b;const fl=a.createBiquadFilter();fl.type='highpass';fl.frequency.value=6000;const g=a.createGain();g.gain.value=.03;sr.connect(fl);fl.connect(g);g.connect(MG2);sr.start(T);}catch(e){}}},
- start(){if(!SND||!MUS||this.tm)return;try{ac();}catch(e){return;}this.next=AC.currentTime+.1;this.tm=setInterval(()=>{if(!AC)return;while(this.next<AC.currentTime+.4){this.mstep(this.next,this.step++);this.next+=.2;}},90);},
+ start(){if(!SND||!MUS||this.tm)return;try{ac();}catch(e){return;}this.next=AC.currentTime+.1;this.tm=setInterval(()=>{if(!AC)return;if(this.next<AC.currentTime-.5)this.next=AC.currentTime+.05;while(this.next<AC.currentTime+.4){this.mstep(this.next,this.step++);this.next+=.2;}},90);},
  stop(){clearInterval(this.tm);this.tm=null;}
 };
 

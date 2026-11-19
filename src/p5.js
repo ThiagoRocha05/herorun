@@ -4,8 +4,22 @@ const svgS=(k,c)=>`<svg viewBox="0 0 100 100" aria-hidden="true">${SH[k](c)}</sv
 const SHC=['#ff4d5e','#4ca3ff','#4cd964','#ffd23f','#ff6fb5','#2ee6d6'];
 const KC={circle:'#4ca3ff',square:'#ff4d5e',tri:'#4cd964',star:'#ffd23f'};
 const KN={circle:'círculos',square:'quadrados',tri:'triângulos',star:'estrelas'};
+/* dados dos mini games (fora das funcoes para o teste de conteudo poder conferir) */
+const RIMAS=[['gato','pato','rato'],['bola','cola','mola'],['mão','pão','chão','balão','feijão','limão','pião','leão','avião'],['casa','asa','brasa'],['cadeira','bandeira','poeira'],['dedo','medo','cedo'],['sapo','papo','trapo'],['luva','uva','chuva'],['pente','dente','gente'],['carro','barro','jarro']];
+const OPOSTOS=[['grande','pequeno'],['quente','frio'],['dia','noite'],['alto','baixo'],['cheio','vazio'],['rápido','devagar'],['feliz','triste'],['claro','escuro'],['aberto','fechado'],['subir','descer'],['dentro','fora'],['leve','pesado'],['perto','longe'],['molhado','seco']];
+const CONFUSOS=[['grande','alto'],['dia','claro']];
+const FALTA=['BOLA','GATO','SAPO','MESA','DEDO','PATO','FACA','VACA','CASA','BOCA','MALA','SINO','LUA','SOL','FLOR','NAVIO','PEIXE','LIVRO'];
+const ALFA='ABCDEFGHIJLMNOPRSTUV';
+const FORME={1:['GATO','BOLA','SAPO','LUA','PATO','CASA','MESA'],2:['BANANA','JANELA','CAVALO','TIGRE','PEIXE','LIVRO']};
+const SILABAS=[['bola',2],['casa',2],['cachorro',3],['banana',3],['pé',1],['flor',1],['borboleta',4],['avião',3],['gato',2],['elefante',4],['sol',1],['porta',2],['escola',3],['maçã',2],['tartaruga',4]];
+const MISTURAS=[['vermelho','azul','roxo'],['vermelho','amarelo','laranja'],['azul','amarelo','verde'],['vermelho','branco','rosa'],['azul','branco','azul claro'],['amarelo','verde','verde limão']];
+const CORPO=[['cabeça','A parte mais alta do corpo'],['nariz','Usamos para cheirar'],['olho','Vemos com ele'],['orelha','Ouvimos com ela'],['boca','Falamos e comemos por ela'],['mão','Com ela pegamos as coisas e damos tchau'],['joelho','Fica no meio da perna e dobra'],['barriga','Fica no meio do corpo'],['pé','Pisamos no chão com ele'],['ombro','Fica entre o pescoço e o braço']];
+const FILHOTES=[['gata','gatinho'],['cadela','cachorrinho'],['vaca','bezerro'],['égua','potro'],['galinha','pintinho'],['pata','patinho'],['leoa','filhote de leão'],['ursa','filhote de urso']];
+/* trocas de uma letra que formam outra palavra do portugues: nunca viram alternativa */
+const LEXCOL=new Set('AOL BALA BATO BECA BELA BICA BILA BOBA BOCA BODA BOIA BOL BOLA BOLD BOLO BOLT BONA BORA BOTA BULA CACA CADA CAGA CAIA CAJA CALA CAMA CANA CAPA CAPO CARA CASE CASH CASI CASO CASS CAST CATA CATO CAVA CEDO COCA COL COLA COSA DACA DADO DECO DEDE DEIXE DEMO DEVO DINO DOCA DODO DOL DUA EUA FACA FACE FACO FACT FADA FAIA FALA FAMA FARA FATO FAVA FEIXE FICA FINO FLOP FOCA GABO GADO GAGO GAIO GAJO GALA GALO GATA GATE GATO GINO GOL GOLA GOTO GUA GUTO HALA HINO HOLA HUA JACA JATO JOCA LACA LALA LATO LDA LEA LEDO LESA LHA LIA LINO LITRO LIVRA LIVRE LOA LOCA LOL LOLA LRA LUC LUG LUI LUN LUO LUV MACA MADA MAGA MAHA MAIA MALE MALI MALL MALO MALU MAMA MANA MAPA MARA MASA MATA MATO MECA MEDA MEDO MEGA MEIA MELA MENA MERA MESH MESS META MILA MINO MISA MOCA MOL MOLA MPLA MULA MUSA NASA NATO NAVID NINO NOLA NUA PACA PACO PAGO PAIO PALA PALO PANO PAPO PARO PASA PASO PATA PATH PATI PATO PATS PAVIO PESA PINO PITO POCA POL POLA PUA PUTO RALA RASA RATO RINO ROCA ROL ROLA RUA SACA SACO SADO SAFO SAIO SAL SALA SANO SASA SATO SAVIO SEL SENO SIDO SIGO SIL SILO SINA SINE SING SINS SIRO SISO SITO SOA SOB SOC SOCA SOE SOF SOH SOLA SOM SON SONO SOO SOP SOR SOS SOU SSL SUA SUL TACA TALA TATO TINO TOCA TOLA TUA UOL VACA VAGA VAIA VALA VARA VINO VOL'.split(' '));
 const WORDS={B:['bola','banana','bebê'],C:['casa','cavalo','carro'],D:['dado','dente','dedo'],F:['faca','flor','foca'],G:['gato','girafa','goiaba'],L:['lua','leão','livro'],M:['mala','mesa','macaco'],P:['pato','pizza','peixe'],S:['sapo','sol','sino'],T:['tigre','tatu','taça']};
 function finish(box,win,msg,close,extra){
+ if(!alive(box))return;
  box.onclick=null;
  box.innerHTML=`<p class="res ${win?'ok':'no'}">${msg}</p><button class="btn" id="mgGo" type="button">Continuar</button>`;
  (win?sfx.good:sfx.bad)();
@@ -65,7 +79,7 @@ const GAMES=[
  const cols=['#ff4d5e','#4ca3ff','#4cd964','#ffd23f'],len=(lv>1?4:3)+rnd(2),seq=Array.from({length:len},()=>rnd(4));let inp=[],lock=true;
  box.innerHTML=`<p id="sm" class="sub">Olhe com atenção...</p><div class="simon">${cols.map((c,i)=>`<button class="pad" data-i="${i}" type="button" style="background:${c}"></button>`).join('')}</div>`;
  const pads=$$('.pad',box),sm=$('#sm',box);
- const flash=async(i,ms=450)=>{pads[i].classList.add('lit');beep(300+i*130,.25,'triangle');await nap(ms);pads[i].classList.remove('lit');await nap(160);};
+ const flash=async(i,ms=450)=>{if(!alive(box))return;pads[i].classList.add('lit');beep(300+i*130,.25,'triangle');await nap(ms);pads[i].classList.remove('lit');await nap(160);};
  (async()=>{await nap(800);for(const i of seq)await flash(i);sm.textContent='Agora é a sua vez!';lock=false;})();
  box.onclick=e=>{const b=e.target.closest('.pad');if(!b||lock)return;const i=+b.dataset.i;flash(i,180);inp.push(i);
   if(seq[inp.length-1]!==i){lock=true;finish(box,false,'Errou a sequência!',close);}
@@ -86,30 +100,29 @@ const GAMES=[
  box.innerHTML=`<p class="sub">Estrelas: <b id="gt">0</b> de ${need}. Tempo: <b id="tl">10</b></p><div class="whack">${Array.from({length:9},(_,i)=>`<button class="hole" data-i="${i}" type="button" aria-label="buraco ${i+1}"></button>`).join('')}</div>`;
  const holes=$$('.hole',box);
  const end=win=>{if(done)return;done=true;clearInterval(tm);clearInterval(sp);finish(box,win,win?'Que reflexo! Estrelas coletadas!':`Pegou ${got} de ${need}.`,close,win?1:0);};
- tm=setInterval(()=>{left--;$('#tl',box).textContent=left;if(left<=0)end(got>=need);},1000);
- sp=setInterval(()=>{if(cur>=0)holes[cur].classList.remove('star');cur=rnd(9);holes[cur].classList.add('star');},720);
+ tm=setInterval(()=>{if(!alive(box)){done=true;clearInterval(tm);clearInterval(sp);return;}left--;$('#tl',box).textContent=left;if(left<=0)end(got>=need);},1000);
+ sp=setInterval(()=>{if(!alive(box))return;if(cur>=0)holes[cur].classList.remove('star');cur=rnd(9);holes[cur].classList.add('star');},720);
  box.onclick=e=>{const h=e.target.closest('.hole');if(!h||done||!h.classList.contains('star'))return;h.classList.remove('star');cur=-1;got++;$('#gt',box).textContent=got;beep(700,.08,'triangle');if(got>=need)end(true);};
 }},
 {name:'Pare no verde',hint:'toque quando o marcador estiver na faixa verde.',run(box,close,lv){
  const w=lv>1?22:30,z=8+rnd(Math.round(84-w)),sp=lv>1?70:52;let x=0,done=false,raf;const t0=performance.now();
  box.innerHTML=`<div class="meter"><div class="zone" style="left:${z}%;width:${w}%"></div><div class="mk" id="mk"></div></div><button class="btn" id="stop" type="button">PARAR!</button>`;
  const mk=$('#mk',box);
- const tick=n=>{x=Math.abs((((n-t0)/1000*sp)%200)-100);mk.style.left=x+'%';if(!done)raf=requestAnimationFrame(tick);};
+ const tick=n=>{if(!alive(mk))return;x=Math.abs((((n-t0)/1000*sp)%200)-100);mk.style.left=x+'%';if(!done)raf=requestAnimationFrame(tick);};
  raf=requestAnimationFrame(tick);
  $('#stop',box).onclick=()=>{done=true;cancelAnimationFrame(raf);const ok=x>=z&&x<=z+w;finish(box,ok,ok?'No alvo!':'Passou perto!',close,ok&&x>=z+w*.3&&x<=z+w*.7?1:0);};
 }},
 {name:'Que dia vem depois?',hint:'escolha o dia da semana que vem a seguir.',run(box,close){
  const dias=['domingo','segunda','terça','quarta','quinta','sexta','sábado'];
  const i=rnd(7),diaAtual=dias[i],prox=dias[(i+1)%7];
- const errados=dias.filter(d=>d!==prox);
+ const errados=dias.filter(d=>d!==prox&&d!==diaAtual);
  const opts=shuffle([prox,...shuffle(errados).slice(0,2)]);
  box.innerHTML=`<div class="q">Depois de <b>${diaAtual}</b> vem...</div>${optBtns(opts,'words')}`;
  pickOne(box,b=>{const ok=b.dataset.v===prox;finish(box,ok,ok?'Mandou bem!':`Era ${prox}!`,close);});
 }},
 {name:'Animal e filhote',hint:'encontre o filhote certo para cada animal.',run(box,close){
- const pares=[['gata','gatinho'],['cadela','filhotinho'],['vaca','bezerro'],['égua','potro'],['galinha','pintinho'],['pata','patinho'],['leoa','filhote de leão'],['ursa','filhote de urso']];
- const[animal,filhote]=pick(pares);
- const outros=shuffle(pares.filter(p=>p[1]!==filhote)).slice(0,2).map(p=>p[1]);
+ const[animal,filhote]=pick(FILHOTES);
+ const outros=shuffle(FILHOTES.filter(p=>p[1]!==filhote)).slice(0,2).map(p=>p[1]);
  const opts=shuffle([filhote,...outros]);
  box.innerHTML=`<div class="q">Qual é o filhote da <b>${animal}</b>?</div>${optBtns(opts,'words')}`;
  pickOne(box,b=>{const ok=b.dataset.v===filhote;finish(box,ok,ok?'Que fofinho! Certo!':`Era ${filhote}!`,close);});
@@ -124,24 +137,21 @@ const GAMES=[
  pickOne(box,b=>{const ok=b.dataset.v===certa;finish(box,ok,ok?'Correto!':`Era ${certa}!`,close);});
 }},
 {name:'Quantas sílabas?',hint:'conte as sílabas da palavra.',run(box,close){
- const palavras=[['bola',2],['casa',2],['cachorro',3],['banana',3],['pé',1],['flor',1],['borboleta',4],['avião',3],['gato',2],['elefante',4],['sol',1],['porta',2],['escola',3],['maçã',2],['tartaruga',4]];
- const[palavra,qtd]=pick(palavras);
+ const[palavra,qtd]=pick(SILABAS);
  const set=new Set([qtd]);for(const c of shuffle([qtd-1,qtd+1,qtd+2,qtd-2,qtd+3])){if(set.size>=3)break;if(c>0&&c<=6)set.add(c);}
  box.innerHTML=`<div class="q">Quantas sílabas tem<br><b style="font-size:1.5em">${palavra}</b>?</div>${optBtns(shuffle([...set]))}`;
  pickOne(box,b=>{const ok=+b.dataset.v===qtd;finish(box,ok,ok?'Bateu palma certinho!':`Tem ${qtd} sílaba${qtd>1?'s':''}!`,close);});
 }},
 {name:'Que cor forma?',hint:'misture as cores e descubra o resultado.',run(box,close){
- const misturas=[['vermelho','azul','roxo'],['vermelho','amarelo','laranja'],['azul','amarelo','verde'],['vermelho','branco','rosa'],['azul','branco','azul claro'],['amarelo','verde','verde limão']];
- const[c1,c2,res]=pick(misturas);
- const outras=misturas.filter(m=>m[2]!==res).map(m=>m[2]);
+ const[c1,c2,res]=pick(MISTURAS);
+ const outras=MISTURAS.filter(m=>m[2]!==res).map(m=>m[2]);
  const opts=shuffle([res,...shuffle(outras).slice(0,2)]);
  box.innerHTML=`<div class="q"><b>${c1}</b> + <b>${c2}</b> = ?</div>${optBtns(opts,'words')}`;
  pickOne(box,b=>{const ok=b.dataset.v===res;finish(box,ok,ok?'Que mistura legal!':`Forma ${res}!`,close);});
 }},
-{name:'Parte do corpo',hint:'toque na parte do corpo que aparece na tela.',run(box,close){
- const partes=[['cabeça','A parte mais alta do corpo'],['nariz','Usamos para cheirar'],['olho','Vemos com ele'],['orelha','Ouvimos com ela'],['boca','Falamos e comemos por ela'],['mão','Temos 5 dedos em cada'],['joelho','Dobra quando chutamos'],['barriga','Fica no meio do corpo'],['pé','Pisamos no chão com ele'],['ombro','Une o braço ao tronco']];
- const[parte,dica]=pick(partes);
- const outras=partes.filter(p=>p[0]!==parte).map(p=>p[0]);
+{name:'Parte do corpo',hint:'leia a dica e escolha a parte do corpo.',run(box,close){
+ const[parte,dica]=pick(CORPO);
+ const outras=CORPO.filter(p=>p[0]!==parte).map(p=>p[0]);
  const opts=shuffle([parte,...shuffle(outras).slice(0,2)]);
  box.innerHTML=`<div class="q" style="font-size:.95em">${dica}</div>${optBtns(opts,'words')}`;
  pickOne(box,b=>{const ok=b.dataset.v===parte;finish(box,ok,ok?'Você conhece seu corpo!':`Era ${parte}!`,close);});
@@ -151,28 +161,28 @@ const GAMES=[
  const ang=(h%12+(meia?.5:0))*30,mang=meia?180:0;
  const nums=Array.from({length:12},(_,i)=>{const a=(i+1)*30*Math.PI/180;return `<text x="${(50+36*Math.sin(a)).toFixed(1)}" y="${(54-36*Math.cos(a)).toFixed(1)}" text-anchor="middle" font-size="9" font-weight="800" fill="#0d1130">${i+1}</text>`;}).join('');
  const clock=`<svg viewBox="0 0 100 100" style="width:150px;height:150px" aria-hidden="true"><circle cx="50" cy="50" r="46" fill="#fff" stroke="#0d1130" stroke-width="4"/>${nums}<line x1="50" y1="50" x2="50" y2="26" stroke="#ff4d5e" stroke-width="5" stroke-linecap="round" transform="rotate(${ang} 50 50)"/><line x1="50" y1="50" x2="50" y2="14" stroke="#0d1130" stroke-width="3" stroke-linecap="round" transform="rotate(${mang} 50 50)"/><circle cx="50" cy="50" r="4" fill="#0d1130"/></svg>`;
- const fmt=(x,m)=>m?`${x} e meia`:`${x} horas`;
+ const fmt=(x,m)=>m?`${x} e meia`:(x===1?'1 hora':`${x} horas`);
  const ans=fmt(h,meia);const opts=new Set([ans]);
  while(opts.size<3){const x=1+rnd(12);opts.add(fmt(x,meia&&Math.random()<.6));}
  box.innerHTML=`<div class="q" style="font-size:1.1em">Que horas o relógio marca?</div><div style="text-align:center">${clock}</div>${optBtns(shuffle([...opts]),'words')}`;
- pickOne(box,b=>{const ok=b.dataset.v===ans;finish(box,ok,ok?'Sabe ver as horas!':`Eram ${ans}.`,close);});
+ pickOne(box,b=>{const ok=b.dataset.v===ans;finish(box,ok,ok?'Sabe ver as horas!':`Marcava ${ans}.`,close);});
 }},
 {name:'O contrário',hint:'ache a palavra com sentido oposto.',run(box,close){
- const P=[['grande','pequeno'],['quente','frio'],['dia','noite'],['alto','baixo'],['cheio','vazio'],['rápido','devagar'],['feliz','triste'],['claro','escuro'],['aberto','fechado'],['subir','descer'],['dentro','fora'],['leve','pesado'],['perto','longe'],['molhado','seco']];
- const[w,a]=pick(P),outros=shuffle(P.filter(x=>x[1]!==a)).slice(0,2).map(x=>x[1]);
+ const P=OPOSTOS,grp=x=>CONFUSOS.findIndex(g=>g.includes(x));
+ const[w,a]=pick(P),gw=grp(w);
+ const outros=shuffle(P.filter(x=>x[1]!==a&&!(gw>=0&&grp(x[0])===gw))).slice(0,2).map(x=>x[1]);
  box.innerHTML=`<div class="q">O contrário de <b>${w}</b> é...</div>${optBtns(shuffle([a,...outros]),'words')}`;
  pickOne(box,b=>{const ok=b.dataset.v===a;finish(box,ok,ok?'Isso mesmo!':`Era ${a}.`,close);});
 }},
 {name:'Quem rima?',hint:'ache a palavra que termina com o mesmo som.',run(box,close){
- const G=[['gato','pato','rato'],['bola','cola','sola'],['mão','pão','chão'],['casa','asa','brasa'],['balão','feijão','limão'],['cadeira','bandeira','poeira'],['dedo','medo','cedo'],['pião','leão','avião'],['rei','lei','grei'],['sapo','capo','papo']];
- const g=pick(G),w=g[0],r=pick(g.slice(1));
- const others=shuffle(G.filter(x=>x!==g)).slice(0,2).map(x=>pick(x));
+ const g=pick(RIMAS),w=pick(g),r=pick(g.filter(x=>x!==w));
+ const others=shuffle(RIMAS.filter(x=>x!==g)).slice(0,2).map(x=>pick(x));
  box.innerHTML=`<div class="q">Qual rima com <b>${w}</b>?</div>${optBtns(shuffle([r,...others]),'words')}`;
  pickOne(box,b=>{const ok=b.dataset.v===r;finish(box,ok,ok?'Que rima linda!':`Rima com ${r}.`,close);});
 }},
 {name:'Letra que falta',hint:'complete a palavra.',run(box,close){
- const W=['BOLA','GATO','SAPO','MESA','DEDO','PATO','FACA','VACA','CASA','BOCA','MALA','SINO','LUA','SOL','FLOR','NAVIO','PEIXE','LIVRO'];
- const w=pick(W),i=rnd(w.length),c=w[i],alfa='ABCDEFGHIJLMNOPRSTUV'.split('').filter(x=>x!==c);
+ const w=pick(FALTA),i=rnd(w.length),c=w[i];
+ const alfa=ALFA.split('').filter(x=>x!==c&&!LEXCOL.has(w.slice(0,i)+x+w.slice(i+1)));
  const opts=shuffle([c,...shuffle(alfa).slice(0,2)]);
  box.innerHTML=`<div class="q" style="letter-spacing:.15em;font-size:2.2em">${w.slice(0,i)}<span style="color:#ffd23f">_</span>${w.slice(i+1)}</div>${optBtns(opts)}`;
  pickOne(box,b=>{const ok=b.dataset.v===c;finish(box,ok,ok?`${w}! Muito bem!`:`Faltava a letra ${c}: ${w}.`,close);});
@@ -188,7 +198,7 @@ const GAMES=[
  pickOne(box,b=>{const ok=+b.dataset.v===ans;finish(box,ok,ok?'Perfeito!':`${n} tem ${d} dezena${d>1?'s':''} e ${u} unidade${u!==1?'s':''}.`,close);});
 }},
 {name:'Alfabeto',hint:'descubra a letra vizinha.',run(box,close,lv){
- const A='ABCDEFGHIJKLMNOPQRSTUVWXYZ',depois=lv===1||Math.random()<.5,i=depois?rnd(24):1+rnd(24)+1-1;
+ const A='ABCDEFGHIJKLMNOPQRSTUVWXYZ',depois=lv===1||Math.random()<.5;
  const idx=depois?rnd(25):1+rnd(25),ref=A[idx],ans=A[idx+(depois?1:-1)];
  const opts=shuffle([ans,...shuffle(A.split('').filter(x=>x!==ans&&x!==ref)).slice(0,2)]);
  box.innerHTML=`<div class="q">Qual letra vem <b>${depois?'depois':'antes'}</b> do <b style="font-size:1.6em;color:#ffd23f">${ref}</b>?</div>${optBtns(opts)}`;
@@ -210,8 +220,7 @@ const GAMES=[
  pickOne(box,b=>{const ok=b.dataset.v===ans;finish(box,ok,ok?'Sabe os meses!':`Vem ${ans}.`,close);});
 }},
 {name:'Forme a palavra',hint:'toque nas letras na ordem certa.',run(box,close,lv){
- const W=lv>1?['BANANA','JANELA','CAVALO','TIGRE','PEIXE','LIVRO']:['GATO','BOLA','SAPO','LUA','PATO','CASA','MESA'];
- const w=pick(W);let letras=shuffle(w.split(''));let tries=0;while(letras.join('')===w&&tries++<9)letras=shuffle(w.split(''));
+ const w=pick(FORME[lv>1?2:1]);let letras=shuffle(w.split(''));let tries=0;while(letras.join('')===w&&tries++<9)letras=shuffle(w.split(''));
  let idx=0,err=0;
  box.innerHTML=`<p class="sub">Forme a palavra: <b id="fw" style="letter-spacing:.2em;font-size:1.4em">${'_'.repeat(w.length).split('').join(' ')}</b></p><div class="num">${letras.map((c,k)=>`<button class="opt" data-k="${k}" data-v="${c}" type="button">${c}</button>`).join('')}</div>`;
  box.onclick=e=>{const b=e.target.closest('.opt');if(!b||b.classList.contains('done'))return;
@@ -222,3 +231,12 @@ const GAMES=[
 
 const RECENT=[];
 function nextGame(){let g,t=0;do{g=pick(GAMES);}while(RECENT.includes(g)&&t++<30);RECENT.push(g);if(RECENT.length>8)RECENT.shift();return g;}
+
+/* gancho para os testes automaticos: so existe quando a URL tem ?teste */
+if(/[?&]teste\b/.test(location.search))window.__HR={
+ get S(){return S},get N(){return N},get AC(){return AC},music,HEROES,GAMES,WHEEL,CARDS,heroSVG,
+ D:{RIMAS,OPOSTOS,CONFUSOS,FALTA,LEXCOL,SILABAS,MISTURAS,CORPO,FILHOTES,WORDS,KC,KN,FORME},
+ startGame,toMenu,duel,winCheck,freeze,push,usePower,land,modal,playGame,nextGame,
+ stopLoop(){EPOCH++;dropCard();$('#modal').hidden=true;},
+ setRobotWin(f){ROBOT_WIN=f;}
+};

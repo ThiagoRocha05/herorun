@@ -1,5 +1,4 @@
 <title>Corrida dos Heróis</title>
-<meta name="claude:viewport-fit-sides" content="cover">
 <style>
 /* fontes locais (OFL-1.1), sem pedir nada a servidores externos */
 @font-face{font-family:'Bangers';font-style:normal;font-weight:400;font-display:swap;src:url(fonts/bangers-latin-400-normal.woff2) format('woff2');}
@@ -22,6 +21,8 @@ body{background:var(--ink);color:var(--txt);font-family:var(--f-body);font-weigh
   padding-block:12px 28px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));
   -webkit-tap-highlight-color:transparent}
 button{font-family:inherit}
+button,.opt,.hole,.pad,.mc{touch-action:manipulation}
+.board,.tokens,.btn,.opt,.hole,.pad,.mc{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
 [hidden]{display:none!important}
 .screen{max-width:1000px;margin:0 auto}
 
